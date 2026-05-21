@@ -23,7 +23,10 @@ app.use(helmet({
   contentSecurityPolicy: false, // Turn off CSP during development so previewing is easier
 }));
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Dynamically allow any origin to prevent CORS blocking issues during hackathon evaluations
+    callback(null, true);
+  },
   credentials: true,
 }));
 app.use(express.json());
@@ -54,7 +57,7 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
   });
